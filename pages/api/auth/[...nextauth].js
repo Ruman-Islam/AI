@@ -8,6 +8,7 @@ export const authOptions = {
   pages: {
     signIn: "/",
   },
+  secret: "super",
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -20,9 +21,24 @@ export const authOptions = {
         )
           .then((userCredential) => {
             if (userCredential.user) {
-              console.log(userCredential)
+              const {
+                uid,
+                email,
+                displayName,
+                emailVerified,
+                phoneNumber,
+                photoURL,
+              } = userCredential.user;
 
-              return userCredential.user;
+              // Return custom user object
+              return {
+                uid,
+                email,
+                displayName,
+                emailVerified,
+                phoneNumber,
+                photoURL,
+              };
             }
             return null;
           })
@@ -34,6 +50,30 @@ export const authOptions = {
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      // Add user information to the token
+      if (user) {
+        token.uid = user.uid;
+        token.email = user.email;
+        token.displayName = user.displayName;
+        token.emailVerified = user.emailVerified;
+        token.phoneNumber = user.phoneNumber;
+        token.photoURL = user.photoURL;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Add token information to the session
+      session.user.uid = token.uid;
+      session.user.email = token.email;
+      session.user.displayName = token.displayName;
+      session.user.emailVerified = token.emailVerified;
+      session.user.phoneNumber = token.phoneNumber;
+      session.user.photoURL = token.photoURL;
+      return session;
+    },
+  },
 };
 
 export default NextAuth(authOptions);

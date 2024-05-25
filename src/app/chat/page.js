@@ -22,7 +22,10 @@ export default function Chat() {
 
   return (
     <div className="p-8">
-      <div>{session?.data?.user?.email}</div>
+      <div>
+        <h1>{session?.data?.user?.displayName}</h1>
+        <h1>{session?.data?.user?.email}</h1>
+      </div>
       <button onClick={() => signOut()}>Logout</button>
     </div>
   );
