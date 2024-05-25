@@ -1,7 +1,6 @@
-import { Inter } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
+import SessionProvider from "./SessionProvider";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Create Next App",
@@ -11,7 +10,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body>
+        <SessionProvider>
+          <section className="flex flex-col justify-between h-screen">
+            <main className="mb-auto flex-1">{children}</main>
+          </section>
+          <Toaster />
+        </SessionProvider>
+      </body>
     </html>
   );
 }
