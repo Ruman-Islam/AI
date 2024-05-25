@@ -44,7 +44,7 @@ module.exports = {
         primary: "#1976D2",
         secondary: "#1565c0",
         text__primary: "#031401",
-        text__gray: "#7a7a7a",
+        text__gray: "#d1d1d1",
         text__link: "#1976d2",
         text__error: "#DC2626",
         text__success: "green",

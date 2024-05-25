@@ -1,7 +1,7 @@
 "use client";
 import { auth } from "@/app/firebase";
 import Spinner from "@/components/common/Spinner";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
