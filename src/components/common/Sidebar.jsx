@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { RiAccountCircleLine } from "react-icons/ri";
 import { auth } from "../../app/firebase";
+import avatar from "../../assets/avatar-.png";
 
 const mainTabs = [
   { id: 1, title: "Tab 1" },
@@ -58,7 +59,13 @@ export default function Sidebar() {
         >
           {/* <button onClick={() => signOut()}>Logout</button> */}
           <div>
-            <RiAccountCircleLine size={55} />
+            <Image
+              className="rounded-xl"
+              width={50}
+              height={50}
+              src={user?.photoURL ? user?.photoURL : avatar}
+              alt=""
+            />
           </div>
           <div className="flex-1 overflow-hidden leading-[20px] text-text__primary">
             <p>{user?.displayName}</p>

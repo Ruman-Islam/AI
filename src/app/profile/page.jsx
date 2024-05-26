@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import {
   useAuthState,
   useSignOut,
@@ -21,6 +22,8 @@ import {
   useUpdateProfile,
 } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
+import { FaCloudUploadAlt } from "react-icons/fa";
+import avatar from "../../assets/avatar-.png";
 import { auth } from "../firebase";
 
 export default function Profile() {
@@ -43,6 +46,13 @@ export default function Profile() {
   const [signOut, signOutLoading] = useSignOut(auth);
   const [updateProfile, updating] = useUpdateProfile(auth);
   const [updatePassword, updatingPassword, error] = useUpdatePassword(auth);
+  const [imagePreview, setImagePreview] = useState(
+    authUser?.photoURL || avatar
+  );
+
+  useEffect(() => {
+    setImagePreview(authUser?.photoURL);
+  }, [authUser]);
 
   const onDisplayNameSubmit = async (data) => {
     const { displayName } = data;
@@ -66,6 +76,48 @@ export default function Profile() {
     });
   };
 
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const res = await fetch(
+          `https://api.imgbb.com/1/upload?key=${process.env.IMG_BB_API_KEY}`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const data = await res.json();
+
+        if (data.success) {
+          await updateProfile({ photoURL: data.data.url });
+          setImagePreview(data.data.url);
+          return toast({
+            title: <h1 className="text-lg">Profile image updated</h1>,
+            className: "bg-text__success text-white",
+          });
+        } else {
+          throw new Error("Image upload failed");
+        }
+      } catch (error) {
+        toast({
+          title: <h1 className="text-lg">Image upload failed</h1>,
+          className: "bg-text__error text-white",
+        });
+      }
+    }
+  };
+
   if (authUserLoading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center">
@@ -85,23 +137,49 @@ export default function Profile() {
   return (
     <DashboardLayout>
       <div className="h-full flex justify-center items-center">
-        <div className="bg-white p-5 rounded-xl max-w-[700px] w-full">
-          <div className="flex flex-col sm:flex-row justify-center sm:justify-between mb-4">
-            <h1 className="text-brand__font__size__md font-brand__font__600">
+        <div className="bg-white shadow p-6 rounded-xl max-w-[700px] w-full">
+          <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center mb-4">
+            <h1 className="text-brand__font__size__lg font-brand__font__600">
               {authUser?.displayName}
             </h1>
             <p className="text-brand__font__size__sm font-brand__font__500">
               Email: {authUser?.email}
             </p>
           </div>
-          {/* <div className="my-2">Image</div> */}
+          {/* Profile input */}
+          <div className="my-2 w-fit">
+            <label htmlFor="file-input">
+              <div className="relative w-fit cursor-pointer group">
+                <Image
+                  className="rounded-xl"
+                  width={80}
+                  height={80}
+                  src={imagePreview}
+                  alt="Profile"
+                />
+                <div className="bg-black absolute top-0 opacity-0 group-hover:opacity-50 w-full h-full duration-200 rounded-xl flex justify-center items-center">
+                  <FaCloudUploadAlt size={30} className="text-white" />
+                </div>
+              </div>
+            </label>
+            <input
+              id="file-input"
+              type="file"
+              name="image"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+            <small className="text-brand__font__size__xs">
+              Edit Profile Image
+            </small>
+          </div>
           <div className="flex flex-col gap-2">
             <Dialog
               open={openDisplayNameModal}
               onOpenChange={setOpenDisplayNameModal}
             >
               <DialogTrigger className="w-full">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full py-6">
                   Display name change
                 </Button>
               </DialogTrigger>
@@ -153,7 +231,7 @@ export default function Profile() {
               onOpenChange={setOpenPasswordModal}
             >
               <DialogTrigger className="w-full">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full py-6">
                   Change password
                 </Button>
               </DialogTrigger>
@@ -201,11 +279,10 @@ export default function Profile() {
               </DialogContent>
             </Dialog>
           </div>
-          <div className="my-2">
+          <div className="my-2 flex justify-center">
             <Button
               onClick={() => signOut()}
-              variant="outline"
-              className="w-full"
+              className="w-fit text-white bg-primary"
             >
               Logout
             </Button>

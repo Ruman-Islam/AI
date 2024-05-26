@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
-import SessionProvider from "./SessionProvider";
+
 import "./globals.css";
 
 export const metadata = {
@@ -11,12 +11,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <SessionProvider>
-          <section className="flex flex-col justify-between h-screen">
-            <main className="mb-auto flex-1">{children}</main>
-          </section>
-          <Toaster />
-        </SessionProvider>
+        <section className="flex flex-col justify-between h-screen">
+          <main className="mb-auto flex-1">{children}</main>
+        </section>
+        <Toaster />
       </body>
     </html>
   );
