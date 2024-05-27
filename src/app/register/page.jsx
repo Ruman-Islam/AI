@@ -1,10 +1,10 @@
 "use client";
-import { auth } from "@/app/firebase";
+import { auth, db } from "@/app/firebase";
 import Spinner from "@/components/common/Spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { useSession } from "next-auth/react";
+import { addDoc, collection } from "firebase/firestore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useState } from "react";
@@ -23,7 +23,6 @@ export default function Register() {
     formState: { errors },
   } = useForm();
   const { toast } = useToast();
-  const session = useSession();
   const router = useRouter();
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [
@@ -55,9 +54,28 @@ export default function Register() {
   const handleShowPassword = () => setIsShowPassword(!isShowPassword);
 
   const onSubmit = async (data) => {
-    const { email, password, displayName } = data;
-    await createUserWithEmailAndPassword(email, password);
-    await updateProfile({ displayName });
+    try {
+      const { email, password, displayName } = data;
+      const res = await createUserWithEmailAndPassword(email, password);
+      await updateProfile({ displayName });
+
+      await addDoc(collection(db, "users"), {
+        uid: res?.user?.uid,
+        name: res?.user?.displayName,
+        email: res?.user?.email,
+      });
+
+      return toast({
+        title: <h1 className="text-lg">Account registered successfully</h1>,
+        className: "bg-text__success text-white",
+      });
+    } catch (error) {
+      return toast({
+        title: <h1 className="text-lg">Something went wrong!</h1>,
+        variant: "destructive",
+        className: "bg-text__error text-white",
+      });
+    }
   };
 
   if (authLoading) {

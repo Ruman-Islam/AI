@@ -9,11 +9,33 @@ body {
   scroll-behavior: auto;
   font-family: "Poppins", sans-serif;
   box-sizing: border-box;
-  background: #F1F4F8;
+  background: #f1f4f8;
 }
 
 .container {
   max-width: 1340px;
   width: 100%;
   margin: 0 auto;
+}
+
+/* For Webkit browsers (e.g., Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 2px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(195, 194, 195, 0.8);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #b4b4b4;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
 }

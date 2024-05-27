@@ -1,0 +1,17 @@
+{
+  "userId": "12345",
+  "chatId": "2345",
+  "chatTitle": "Hello world",
+  "chatHistory": [
+    {
+      "role": "user",
+      "content": "Hello world",
+      "nodes": []
+    },
+    {
+      "role": "assistant",
+      "content": "How can I assist you today, sir?",
+      "nodes": []
+    }
+  ]
+}

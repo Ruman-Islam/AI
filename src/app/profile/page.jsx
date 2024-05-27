@@ -137,7 +137,7 @@ export default function Profile() {
   return (
     <DashboardLayout>
       <div className="h-full flex justify-center items-center">
-        <div className="bg-white shadow p-6 rounded-xl max-w-[700px] w-full">
+        <div className="bg-white shadow p-6 rounded-xl max-w-[700px] w-full m-2">
           <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center mb-4">
             <h1 className="text-brand__font__size__lg font-brand__font__600">
               {authUser?.displayName}
@@ -154,7 +154,7 @@ export default function Profile() {
                   className="rounded-xl"
                   width={80}
                   height={80}
-                  src={imagePreview}
+                  src={imagePreview ? imagePreview : avatar}
                   alt="Profile"
                 />
                 <div className="bg-black absolute top-0 opacity-0 group-hover:opacity-50 w-full h-full duration-200 rounded-xl flex justify-center items-center">
