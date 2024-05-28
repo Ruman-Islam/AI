@@ -2,6 +2,7 @@
 
 import DashboardLayout from "@/components/common/DashboardLayout";
 import Spinner from "@/components/common/Spinner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,16 +12,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
 import { ChatContext } from "@/context";
 import { sortDocumentsByTimestampDesc } from "@/utils/sort";
 import { deleteDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import Link from "next/link";
 import { useContext, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
 import { FaDownload, FaEdit, FaFilePdf, FaRegTrashAlt } from "react-icons/fa";
-import { GrNotes } from "react-icons/gr";
 import { auth, db } from "../firebase";
 
 export default function Archive() {
@@ -141,9 +148,9 @@ export default function Archive() {
   return (
     <>
       <DashboardLayout>
-        <div className="p-3 w-full flex flex-col gap-5 container">
+        <div className="p-3 w-full h-full flex flex-col gap-5 container">
           <div className="flex flex-col md:flex-row w-full gap-x-5 gap-y-2 md:justify-between md:items-center">
-            <div className="mt-2">
+            <div className="mt-2.5">
               <h1 className="text-brand__font__size__lg leading-[20px]">
                 Chat Archive
               </h1>
@@ -159,24 +166,43 @@ export default function Archive() {
               />
             </div>
           </div>
+          <Separator className="border-b border-primary" />
 
-          <div>
-            <div>
+          <div className="h-full overflow-y-auto">
+            <div className="px-4">
               {(state?.chatIsLoading
                 ? Array.from(new Array(state.chats?.length))
                 : filteredChats
               ).map((item, i) =>
                 item ? (
                   <div key={i}>
-                    <div className="bg-white flex flex-col sm:flex-row justify-between items-center rounded-xl gap-5 p-4 my-2">
-                      <div className="flex items-center justify-between gap-x-4">
-                        <div>
-                          <GrNotes />
-                        </div>
-                        <div className="font-brand__font__500">
-                          <span>{item?.chatTitle}</span>
-                          <div></div>
-                        </div>
+                    <div className="bg-white flex flex-col sm:flex-row justify-between items-center rounded-xl gap-5 p-4 my-2 text-primary">
+                      <div className="flex flex-col">
+                        {item?.chatTitle?.length > 50 ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Link
+                                href={`/chat?chatId=${item?.id}`}
+                                className="mb-1 text-brand__font__size__sm pl-1 font-brand__font__500 hover:text-text__link duration-200"
+                              >
+                                {item?.chatTitle.slice(0, 47) + "..."}
+                              </Link>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-white">
+                              <p>{item?.chatTitle}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          <Link
+                            href={`/chat?chatId=${item?.id}`}
+                            className="mb-1 text-brand__font__size__sm pl-1 font-brand__font__500 hover:text-text__link duration-200"
+                          >
+                            {item?.chatTitle}
+                          </Link>
+                        )}
+                        <Badge variant="outline" className="w-fit">
+                          {new Date(item?.createdAt?.seconds).toDateString()}
+                        </Badge>
                       </div>
                       <div className="flex justify-between gap-x-3 text-brand__font__size__md">
                         <Button

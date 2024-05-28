@@ -7,6 +7,7 @@ import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useContext, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { TooltipProvider } from "../ui/tooltip";
 import NoteBar from "./NoteBar";
 import Sidebar from "./Sidebar";
 
@@ -139,9 +140,11 @@ export default function DashboardLayout({ children }) {
   return (
     <section className="h-screen w-full bg-[#EEEEEE]">
       <div className="h-full w-full flex justify-between">
-        <Sidebar />
-        <div className="flex-1">{children}</div>
-        <NoteBar />
+        <TooltipProvider>
+          <Sidebar />
+          <div className="flex-1">{children}</div>
+          <NoteBar />
+        </TooltipProvider>
       </div>
     </section>
   );

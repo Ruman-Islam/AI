@@ -18,6 +18,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../../app/firebase";
 import avatar from "../../assets/avatar-.png";
 import logo from "../../assets/zpunkt.png";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { toast } from "../ui/use-toast";
 
 const mainTabs = [
@@ -147,15 +148,24 @@ export default function Sidebar() {
                 {state?.chatIds?.map((item) => (
                   <li
                     key={item?.id}
-                    className="text-primary inline-block max-w-[250px] w-full text-brand__font__size__sm font-brand__font__600 hover:text-text__link"
+                    className="text-primary inline-block max-w-[250px] w-full text-brand__font__size__sm font-brand__font__500 hover:text-text__link mb-1.5 pl-1 duration-200"
                   >
                     <Link
                       href={`/chat?chatId=${item?.id}`}
-                      className="p-1 inline-block max-w-[250px] w-full"
+                      className="inline-block w-full"
                     >
-                      {item?.chatTitle?.length > 24
-                        ? item?.chatTitle.slice(0, 20) + "..."
-                        : item?.chatTitle}
+                      {item?.chatTitle?.length > 24 ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span>{item?.chatTitle.slice(0, 24) + "..."}</span>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-white">
+                            <p>{item?.chatTitle}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <span>{item?.chatTitle}</span>
+                      )}
                     </Link>
                   </li>
                 ))}
