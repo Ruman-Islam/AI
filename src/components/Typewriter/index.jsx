@@ -26,7 +26,7 @@ const Typewriter = ({ text, speed = 50, redirectUrl }) => {
   }, [text, speed, currentIndex]);
 
   if (formattedText.length > 0) {
-    router.push(redirectUrl);
+    // router.push(redirectUrl);
     return <TypewriterContainer>{formattedText}</TypewriterContainer>;
   } else {
     return (
