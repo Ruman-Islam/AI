@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useState } from "react";
 import {
   useAuthState,
+  useSendPasswordResetEmail,
   useSignInWithEmailAndPassword,
 } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
@@ -23,8 +24,10 @@ export default function Home() {
   const { toast } = useToast();
   const router = useRouter();
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
   const [signInWithEmailAndPassword, signInUser, signInLoading, error] =
     useSignInWithEmailAndPassword(auth);
+  const [sendPasswordResetEmail] = useSendPasswordResetEmail(auth);
   const [authUser, authLoading] = useAuthState(auth);
 
   useLayoutEffect(() => {
@@ -48,6 +51,32 @@ export default function Home() {
   const onSubmit = async (data) => {
     const { email, password } = data;
     await signInWithEmailAndPassword(email, password);
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      return toast({
+        title: <h1 className="text-lg">Email required</h1>,
+        className: "bg-text__error text-white",
+      });
+    }
+
+    try {
+      const success = await sendPasswordResetEmail(email, {
+        url: "http://localhost:3000/login",
+      });
+      console.log(success);
+      return toast({
+        title: <h1 className="text-lg">Password reset email has been sent</h1>,
+        className: "bg-text__success text-white",
+      });
+    } catch (error) {
+      return toast({
+        title: <h1 className="text-lg">Try again</h1>,
+        className: "bg-text__error text-white",
+      });
+    }
   };
 
   if (authLoading) {
@@ -76,6 +105,7 @@ export default function Home() {
                     required: true,
                     pattern: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
                   })}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email"
                   className="bg-brand__gray py-5"
                 />
@@ -114,12 +144,12 @@ export default function Home() {
             </div>
 
             <small>
-              <Link
-                href="/"
-                className="underline text-text__link my-2 inline-block"
+              <a
+                onClick={handleChangePassword}
+                className="underline text-text__link my-2 inline-block cursor-pointer"
               >
                 Forget password?
-              </Link>
+              </a>
             </small>
 
             <Button

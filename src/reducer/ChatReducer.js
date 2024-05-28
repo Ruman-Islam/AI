@@ -1,8 +1,8 @@
-import { sortDocumentsByTimestampDesc } from "@/utils/sort";
-
 const initialState = {
   chats: [],
   chatIds: [],
+  notes: [],
+  chatIsLoading: false,
 };
 
 const chatReducer = (state, action) => {
@@ -26,10 +26,27 @@ const chatReducer = (state, action) => {
       };
 
     case "ADD_CHAT_ID":
-      const sorted = sortDocumentsByTimestampDesc(state.chatIds);
       return {
         ...state,
-        chatIds: [action?.payload, ...sorted],
+        chatIds: [action?.payload, ...state.chatIds],
+      };
+
+    case "LOAD_NOTES":
+      return {
+        ...state,
+        notes: [...action?.payload],
+      };
+
+    case "ADD_NOTE":
+      return {
+        ...state,
+        notes: [...state.notes, action?.payload],
+      };
+
+    case "LOADING":
+      return {
+        ...state,
+        chatIsLoading: action?.payload,
       };
 
     case "ADD_TASK":

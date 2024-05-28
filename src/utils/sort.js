@@ -5,8 +5,8 @@ const parseTimestamp = (timestamp) => {
 
 export const sortDocumentsByTimestampDesc = (documents) => {
   return documents.sort((a, b) => {
-    const dateA = parseTimestamp(a.createdAt);
-    const dateB = parseTimestamp(b.createdAt);
+    const dateA = parseTimestamp(a.createdAt?.seconds);
+    const dateB = parseTimestamp(b.createdAt?.seconds);
     return dateB - dateA; // Sort in descending order
   });
 };

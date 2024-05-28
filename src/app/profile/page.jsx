@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   useAuthState,
@@ -40,6 +41,7 @@ export default function Profile() {
     formState: { errors: passwordErrors },
   } = useForm();
   const { toast } = useToast();
+  const router = useRouter();
   const [authUser, authUserLoading] = useAuthState(auth);
   const [openDisplayNameModal, setOpenDisplayNameModal] = useState(false);
   const [openPasswordModal, setOpenPasswordModal] = useState(false);
@@ -118,15 +120,11 @@ export default function Profile() {
     }
   };
 
-  if (authUserLoading) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center">
-        <Spinner styles="w-10 h-10 text-primary" />
-      </div>
-    );
-  }
+  const handleSignOut = () => {
+    signOut();
+  };
 
-  if (signOutLoading) {
+  if (authUserLoading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center">
         <Spinner styles="w-10 h-10 text-primary" />
@@ -281,7 +279,7 @@ export default function Profile() {
           </div>
           <div className="my-2 flex justify-center">
             <Button
-              onClick={() => signOut()}
+              onClick={() => handleSignOut()}
               className="w-fit text-white bg-primary"
             >
               Logout

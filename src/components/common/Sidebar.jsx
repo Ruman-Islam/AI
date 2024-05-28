@@ -1,12 +1,24 @@
+import axios from "@/api/axios";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ChatContext } from "@/context";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  serverTimestamp,
+} from "firebase/firestore";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useContext, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../app/firebase";
+import { auth, db } from "../../app/firebase";
 import avatar from "../../assets/avatar-.png";
+import logo from "../../assets/zpunkt.png";
+import { toast } from "../ui/use-toast";
 
 const mainTabs = [
   { id: 1, title: "Chat" },
@@ -17,23 +29,81 @@ const mainTabs = [
 export default function Sidebar() {
   const router = useRouter();
   const [user, authLoading] = useAuthState(auth);
-  const [selectedTab, setSelectedTab] = useState("Chat");
   const { state } = useContext(ChatContext);
+  const pathname = usePathname();
+  const [selectedTab, setSelectedTab] = useState("Chat");
+  const [docs, setDocs] = useState([]);
 
-  // useEffect(() => {
-  //   if (!user) {
-  //     router.push("/");
-  //   }
-  // }, [router, user]);
+  useEffect(() => {
+    const fetchFiles = async () => {
+      if (selectedTab === "Docs") {
+        const docs = await getDocs(collection(db, "ingestedDocs"));
+        const docsData = docs?.docs.map((doc) => ({
+          id: doc?.id,
+          ...doc?.data(),
+        }));
+
+        setDocs(docsData);
+      }
+    };
+    fetchFiles();
+  }, [selectedTab]);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        await axios.post(
+          "/api/ingest/upload-file?data_dir=/tmp/tmps7fzz1aa&use_llama_parse=true",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        const docRef = await addDoc(collection(db, "ingestedDocs"), {
+          filename: file.name,
+          filetype: `.${file.name.split(".")[file.name.split(".").length - 1]}`,
+          createdAt: serverTimestamp(),
+        });
+
+        toast({
+          title: <h1 className="text-lg">Uploaded successfully</h1>,
+          className: "bg-text__success text-white",
+        });
+      } catch (error) {
+        toast({
+          title: <h1 className="text-lg">Something went wrong!</h1>,
+          variant: "destructive",
+          className: "bg-text__error text-white",
+        });
+      } finally {
+        e.target.value = "";
+      }
+    }
+  };
 
   if (authLoading) {
-    return "";
+    return (
+      <Skeleton className="h-full w-[250px] rounded-xl border bg-text__gray" />
+    );
   }
 
   return (
-    <aside className="max-w-[0px] md:max-w-[270px] w-full flex flex-col drop-shadow-lg m-0 md:m-3 md:mr-0 border rounded-xl bg-[#F1F4F8]  duration-300 opacity-0 md:opacity-100">
+    <aside className="max-w-[0px] md:max-w-[270px] w-full flex flex-col drop-shadow-lg m-0 md:m-3 md:mr-0 border rounded-xl bg-white  duration-300 opacity-0 md:opacity-100">
       <div className="border-b border-text__gray p-6 hidden md:flex">
-        <h1>LOGO</h1>
+        <Image
+          src={logo}
+          width={200}
+          height={50}
+          className="w-full h-[120px]"
+          alt="zpunkt"
+        />
       </div>
       <nav className="hidden md:flex flex-col h-full">
         {/* Tabs */}
@@ -53,39 +123,66 @@ export default function Sidebar() {
 
         {/* Dynamic contents */}
         <div className="p-4 border-t border-b border-text__gray h-full">
-          <div className="h-full flex flex-col">
-            <div className="flex justify-between gap-2 text-white">
-              <Link
-                href="/chat"
-                className="w-full rounded-xl hover:bg-text__primary duration-200 inline-block border text-center text-brand__font__size__sm py-1 bg-primary"
-              >
-                New Chat
-              </Link>
-              <Link
-                href="/chat"
-                className="w-full rounded-xl hover:bg-text__primary duration-200 inline-block border text-center text-brand__font__size__sm py-1 bg-primary"
-              >
-                Archive
-              </Link>
-            </div>
-            <ul className="h-full py-4">
-              {state?.chatIds?.map((item) => (
-                <li
-                  key={item?.id}
-                  className="text-primary inline-block max-w-[250px] w-full text-brand__font__size__sm font-brand__font__600 hover:text-text__link"
+          {selectedTab === "Chat" && (
+            <div className="h-full flex flex-col gap-y-3">
+              <div className="flex justify-between gap-2 text-white">
+                <Link
+                  href="/chat"
+                  className={`w-full rounded-xl hover:bg-text__primary duration-200 inline-block border text-center text-brand__font__size__sm py-1 ${
+                    pathname === "/chat" ? "bg-text__primary" : "bg-primary"
+                  }`}
                 >
-                  <Link
-                    href={`/chat?chatId=${item?.id}`}
-                    className="p-1 inline-block max-w-[250px] w-full"
+                  New Chat
+                </Link>
+                <Link
+                  href="/archive"
+                  className={`w-full rounded-xl hover:bg-text__primary duration-200 inline-block border text-center text-brand__font__size__sm py-1 ${
+                    pathname === "/archive" ? "bg-text__primary" : "bg-primary"
+                  }`}
+                >
+                  Archive
+                </Link>
+              </div>
+              <ul className="max-h-[510px] h-full inline-block overflow-y-auto">
+                {state?.chatIds?.map((item) => (
+                  <li
+                    key={item?.id}
+                    className="text-primary inline-block max-w-[250px] w-full text-brand__font__size__sm font-brand__font__600 hover:text-text__link"
                   >
-                    {item?.chatTitle?.length > 24
-                      ? item?.chatTitle.slice(0, 20) + "..."
-                      : item?.chatTitle}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+                    <Link
+                      href={`/chat?chatId=${item?.id}`}
+                      className="p-1 inline-block max-w-[250px] w-full"
+                    >
+                      {item?.chatTitle?.length > 24
+                        ? item?.chatTitle.slice(0, 20) + "..."
+                        : item?.chatTitle}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {selectedTab === "Upload" && (
+            <div className="h-full flex flex-col justify-end">
+              <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="upload">File upload</Label>
+                <Input id="upload" type="file" onChange={handleFileUpload} />
+              </div>
+            </div>
+          )}
+
+          {selectedTab === "Docs" && (
+            <div className="h-full">
+              <ul className="h-full px-5 text-brand__font__size__xs">
+                {docs.map((doc) => (
+                  <li className="list-disc break-words" key={doc?.id}>
+                    {doc?.filename}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </nav>
 

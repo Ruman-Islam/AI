@@ -115,7 +115,7 @@ export default function Login() {
 
             <small>
               <Link
-                href="/"
+                href="/forget-password"
                 className="underline text-text__link my-2 inline-block"
               >
                 Forget password?
