@@ -1,12 +1,14 @@
 "use client";
 import { formatText, TypewriterContainer } from "@/utils/formattedText";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { TypeAnimation } from "react-type-animation";
 
-const Typewriter = ({ text, speed = 50, redirectUrl }) => {
-  const router = useRouter();
-  const [displayedText, setDisplayedText] = useState("");
+const Typewriter = ({ text, speed = 50, createdChatId }) => {
+  const { replace } = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [formattedText, setFormattedText] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -14,19 +16,34 @@ const Typewriter = ({ text, speed = 50, redirectUrl }) => {
     let interval;
     if (currentIndex < text.length) {
       interval = setInterval(() => {
-        setDisplayedText((prev) => prev + text[currentIndex]);
         setCurrentIndex((prev) => prev + 1);
       }, speed);
     } else {
       clearInterval(interval);
       setFormattedText(formatText(text));
+
+      const params = new URLSearchParams(searchParams);
+      if (createdChatId) {
+        params.set("chatId", createdChatId);
+      } else {
+        params.delete("chatId");
+      }
+
+      replace(`${pathname}?${params.toString()}`);
     }
 
     return () => clearInterval(interval);
-  }, [text, speed, currentIndex]);
+  }, [
+    createdChatId,
+    currentIndex,
+    pathname,
+    replace,
+    searchParams,
+    speed,
+    text,
+  ]);
 
   if (formattedText.length > 0) {
-    // router.push(redirectUrl);
     return <TypewriterContainer>{formattedText}</TypewriterContainer>;
   } else {
     return (

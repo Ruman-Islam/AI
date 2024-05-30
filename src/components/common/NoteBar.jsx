@@ -7,10 +7,11 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   serverTimestamp,
 } from "firebase/firestore";
 import { usePathname } from "next/navigation";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
 import { FaCirclePlus } from "react-icons/fa6";
@@ -39,6 +40,26 @@ export default function NoteBar() {
     reset,
     formState: { errors },
   } = useForm();
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      const notes = await getDocs(collection(db, "notes"));
+      const notesData = notes?.docs.map((doc) => ({
+        id: doc?.id,
+        ...doc?.data(),
+      }));
+
+      const filtered = notesData.filter(
+        (note) => note.userId === authUser?.uid
+      );
+      dispatch({
+        type: "LOAD_NOTES",
+        payload: filtered,
+      });
+    };
+
+    fetchNotes();
+  }, [dispatch, authUser?.uid]);
 
   const onSubmit = async (data) => {
     setLoading(true);

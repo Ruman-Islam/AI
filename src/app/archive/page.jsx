@@ -21,10 +21,18 @@ import {
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
 import { ChatContext } from "@/context";
-import { sortDocumentsByTimestampDesc } from "@/utils/sort";
-import { deleteDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import Link from "next/link";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
 import { FaDownload, FaEdit, FaFilePdf, FaRegTrashAlt } from "react-icons/fa";
@@ -40,15 +48,47 @@ export default function Archive() {
   const { toast } = useToast();
   const { state, dispatch } = useContext(ChatContext);
   const [user] = useAuthState(auth);
-  const [chats, setChats] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [updateSelectedData, setUpdateSelectedData] = useState({});
+  const [isChatLoading, setIsChatLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
-  const descendingSortedChats = sortDocumentsByTimestampDesc(state?.chats);
-  const filteredChats = descendingSortedChats.filter((item) =>
+  const chatIdsLength = state.chatIds?.length;
+  const filteredChats = state?.chats.filter((item) =>
     item?.chatTitle?.toLowerCase()?.includes(searchTerm?.toLowerCase())
   );
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        setIsChatLoading(true);
+        const q = query(
+          collection(db, "chatHistory"),
+          orderBy("createdAt", "desc")
+        );
+        const chats = await getDocs(q);
+        const chatsData = chats?.docs.map((doc) => ({
+          id: doc?.id,
+          ...doc?.data(),
+        }));
+
+        dispatch({
+          type: "LOAD_CHAT",
+          payload: chatsData.filter((item) => item.userId === user?.uid),
+        });
+      } catch (error) {
+        toast({
+          title: <h1 className="text-lg">Something went wrong!</h1>,
+          variant: "destructive",
+          className: "bg-text__error text-white",
+        });
+      } finally {
+        setIsChatLoading(false);
+      }
+    };
+
+    fetchChats();
+  }, [dispatch, toast, user?.uid]);
 
   const handleSearch = (search) => {
     setSearchTerm(search);
@@ -170,8 +210,8 @@ export default function Archive() {
 
           <div className="h-full overflow-y-auto">
             <div className="px-4">
-              {(state?.chatIsLoading
-                ? Array.from(new Array(state.chats?.length))
+              {(isChatLoading
+                ? Array.from(new Array(chatIdsLength > 0 ? chatIdsLength : 10))
                 : filteredChats
               ).map((item, i) =>
                 item ? (

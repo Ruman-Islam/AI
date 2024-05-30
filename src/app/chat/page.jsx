@@ -13,10 +13,11 @@ import {
   collection,
   doc,
   getDoc,
+  getDocs,
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
@@ -35,14 +36,17 @@ export default function Chat() {
     formState: { errors },
   } = useForm();
   const { toast } = useToast();
+  const pathname = usePathname();
   const router = useRouter();
   const messageEl = useRef(null);
   const searchParams = useSearchParams();
   const chatId = searchParams.get("chatId");
   const [userMessage, setUserMessage] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [redirectUrl, setRedirectUrl] = useState("");
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [createdChatId, setCreatedChatId] = useState("");
   const { state, dispatch } = useContext(ChatContext);
+  const chatLength = state?.chats?.length;
 
   // Auto scroll subscribing
   useEffect(() => {
@@ -143,7 +147,7 @@ export default function Chat() {
               },
             });
 
-            setRedirectUrl(`/chat?chatId=${docSnap?.id}`);
+            setCreatedChatId(docSnap?.id);
           }
         } catch (error) {
           return toast({
@@ -160,6 +164,39 @@ export default function Chat() {
 
     handleFetch();
   }, [chatId, dispatch, router, state?.chats, toast, user?.uid, userMessage]);
+
+  // Fetch chat based on chatId and chat titles;
+  useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        if (pathname.includes("/chat") && chatId) {
+          // Get one chat by ID
+          setIsChatLoading(true);
+          const chats = await getDocs(collection(db, "chatHistory"));
+          const chatsData = chats?.docs.map((doc) => ({
+            id: doc?.id,
+            ...doc?.data(),
+          }));
+
+          const getOneChat = chatsData?.find((chat) => chat?.id === chatId);
+          dispatch({
+            type: "LOAD_CHAT",
+            payload: getOneChat?.history?.length ? getOneChat?.history : [],
+          });
+        }
+      } catch (error) {
+        return toast({
+          title: <h1 className="text-lg">Something went wrong!</h1>,
+          variant: "destructive",
+          className: "bg-text__error text-white",
+        });
+      } finally {
+        setIsChatLoading(false);
+      }
+    };
+
+    fetchChats();
+  }, [chatId, dispatch, pathname, toast]);
 
   // Submitting for chat request
   async function onSubmit(data) {
@@ -235,9 +272,9 @@ export default function Chat() {
           className="overflow-y-auto flex-1 h-full px-0 md:px-20"
           ref={messageEl}
         >
-          {state.chats?.length ? (
-            (state?.chatIsLoading
-              ? Array.from(new Array(state.chats?.length))
+          {chatId || chatLength ? (
+            (isChatLoading
+              ? Array.from(new Array(chatLength > 0 ? chatLength : 4))
               : state.chats
             ).map((item, i) => {
               if (item) {
@@ -261,7 +298,7 @@ export default function Chat() {
                           <Typewriter
                             text={item?.content}
                             speed={50}
-                            redirectUrl={redirectUrl}
+                            createdChatId={createdChatId}
                           />
                         ) : (
                           <span className="py-4 inline-block">
@@ -334,7 +371,7 @@ export default function Chat() {
                 );
               }
             })
-          ) : (
+          ) : !chatId && !chatLength ? (
             <div className="w-full h-full flex flex-col items-center justify-center">
               <div className="bg-gradient-to-tr from-primary to-[#119D8E] text-white text-center max-w-[700px] w-full mx-auto p-5 font-brand__font__600 border border-text__primary rounded-xl">
                 <h1 className="text-brand__font__size__xl mb-10">z-Punkt</h1>
@@ -353,7 +390,7 @@ export default function Chat() {
                 <p>Bitte zögern Sie nicht, Ihre Fragen zu stellen...</p>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Input */}
