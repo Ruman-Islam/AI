@@ -21,6 +21,7 @@ body {
 /* For Webkit browsers (e.g., Chrome, Safari) */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {

@@ -178,7 +178,7 @@ export default function Archive() {
         className: "bg-text__error text-white",
       });
     } finally {
-      reset();
+      // reset();
       setUpdateSelectedData({});
       setUpdateLoading(false);
       setOpenModal(false);

@@ -3,7 +3,7 @@ import { ChatContext } from "@/context";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Button } from "../ui/button";
 import { TabsContent } from "../ui/tabs";
@@ -16,7 +16,6 @@ export default function ChatSidebarTab() {
   const router = useRouter();
   const pathname = usePathname();
   const { state, dispatch } = useContext(ChatContext);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchChatTitles = async () => {
@@ -41,8 +40,6 @@ export default function ChatSidebarTab() {
           variant: "destructive",
           className: "bg-text__error text-white",
         });
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -57,10 +54,6 @@ export default function ChatSidebarTab() {
 
     router.push("/chat");
   };
-
-  if (loading) {
-    return "Loading...";
-  }
 
   return (
     <TabsContent value="Chat" className="h-full">

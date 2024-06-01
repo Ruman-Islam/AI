@@ -22,7 +22,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="max-w-[0px] md:max-w-[270px] w-full flex flex-col drop-shadow-lg m-0 md:m-3 md:mr-0 border rounded-xl bg-white  duration-300 opacity-0 md:opacity-100">
+    <aside className="max-w-[0px] md:max-w-[270px] w-full flex flex-col drop-shadow-lg border bg-white duration-300 opacity-0 md:opacity-100">
       <div className=" border-text__gray p-6 hidden md:flex">
         <Image
           src={logo}

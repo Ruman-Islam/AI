@@ -16,7 +16,7 @@ export default function UploadSidebarTab() {
       formData.append("file", file);
 
       try {
-        await axios.post(
+        const res = await axios.post(
           "/api/ingest/upload-file?data_dir=/tmp/tmps7fzz1aa&use_llama_parse=true",
           formData,
           {
