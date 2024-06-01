@@ -3,7 +3,7 @@ import ChatMessages from "@/components/ChatMessages";
 import DashboardLayout from "@/components/common/DashboardLayout";
 import Spinner from "@/components/common/Spinner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { ChatContext } from "@/context";
 import { useChat } from "ai/react";
@@ -23,7 +23,38 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { IoSendSharp } from "react-icons/io5";
 import { auth, db } from "../firebase";
 
-export default function Test() {
+const AutoResizableTextarea = ({
+  input,
+  handleChange,
+  isLoading,
+  isUploading,
+}) => {
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      // Reset height to auto to correctly calculate the scrollHeight
+      textareaRef.current.style.height = "auto";
+      // Set the height of the textarea to match its scrollHeight
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
+
+  return (
+    <Textarea
+      ref={textareaRef}
+      type="text"
+      placeholder="Message AI"
+      className="focus-outline-none border-none focus-visible:ring-0 py-6 pr-12 pl-4 bg-primary text-white"
+      style={{ overflow: "hidden", resize: "none" }}
+      value={input}
+      onChange={handleChange}
+      disabled={isLoading || isUploading}
+    />
+  );
+};
+
+export default function Chat() {
   const { toast } = useToast();
   const { replace } = useRouter();
   const searchParams = useSearchParams();
@@ -165,29 +196,48 @@ export default function Test() {
   return (
     <DashboardLayout>
       <div className="h-full flex flex-col justify-between px-3 pb-3 container">
-        <div
-          ref={scrollableChatContainerRef}
-          className="overflow-y-auto flex-1 h-full px-0 md:px-20"
-        >
-          <ChatMessages messages={[...state.chats, ...messages]} />
-        </div>
+        {state?.chats?.length > 0 || messages?.length > 0 ? (
+          <div
+            ref={scrollableChatContainerRef}
+            className="overflow-y-auto flex-1 h-full px-0 md:px-20"
+          >
+            <ChatMessages messages={[...state.chats, ...messages]} />
+          </div>
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center">
+            <div className="bg-gradient-to-tr from-primary to-[#119D8E] text-white text-center max-w-[700px] w-full mx-auto p-5 font-brand__font__600 border border-text__primary rounded-xl">
+              <h1 className="text-brand__font__size__xl mb-10">z-Punkt</h1>
+
+              <p className="mb-5">
+                Hallo ich bin ihr AI-Zukunftsassistent, Ihr künstlicher
+                Intelligenzassistent für Zukunftsfragen
+              </p>
+              <p className="mb-5">
+                Dieses hochmoderne KI-Werkzeug ist sorgfältig konzipiert, um
+                professionelle Beratung mit bemerkenswerter Genauigkeit und
+                Einsicht zu bieten. Der AI-Zukunftsassistent ist darauf
+                ausgerichtet, maßgeschneiderte Expertenunterstützung für Ihre
+                einzigartigen Herausforderungen zu liefern.
+              </p>
+              <p>Bitte zögern Sie nicht, Ihre Fragen zu stellen...</p>
+            </div>
+          </div>
+        )}
 
         {/* Input */}
         <div className="px-0 md:px-20">
           <form onSubmit={onSubmit}>
-            <div className="relative border">
-              <Input
-                type="text"
-                placeholder="Message AI"
-                className="focus-outline-none border-none focus-visible:ring-0 py-6 pr-12 pl-4"
-                value={input}
-                onChange={handleInputChange}
-                disabled={isLoading || isUploading}
+            <div className="relative">
+              <AutoResizableTextarea
+                input={input}
+                handleChange={handleInputChange}
+                isLoading={isLoading}
+                isUploading={isUploading}
               />
               <div className="text-primary">
                 <Button
                   disabled={isLoading || isUploading}
-                  className="bg-transparent hover:bg-transparent absolute top-1 -right-1"
+                  className="bg-transparent hover:bg-transparent absolute top-6 -right-1 text-white"
                 >
                   {isLoading || isUploading ? (
                     <Spinner styles="w-5 h-5" />

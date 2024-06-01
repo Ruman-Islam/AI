@@ -20,22 +20,24 @@ const MemoizedReactMarkdown = memo(
 );
 
 const preprocessLaTeX = (content) => {
-  const blockProcessedContent = content.replace(
-    /\\\[(.*?)\\\]/gs,
-    (_, equation) => `$$${equation}$$`
-  );
-  const inlineProcessedContent = blockProcessedContent.replace(
-    /\\\((.*?)\\\)/gs,
-    (_, equation) => `$${equation}$`
-  );
-  return inlineProcessedContent;
+  if (content) {
+    const blockProcessedContent = content.replace(
+      /\\\[(.*?)\\\]/gs,
+      (_, equation) => `$$${equation}$$`
+    );
+    const inlineProcessedContent = blockProcessedContent.replace(
+      /\\\((.*?)\\\)/gs,
+      (_, equation) => `$${equation}$`
+    );
+    return inlineProcessedContent;
+  }
 };
 
 function Markdown({ content }) {
   const processedContent = preprocessLaTeX(content);
   return (
     <MemoizedReactMarkdown
-      className="prose dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 break-words custom-markdown bg-white p-4 rounded-xl"
+      className="prose dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 break-words custom-markdown text-white p-4 rounded-xl bg-primary"
       remarkPlugins={[remarkGfm, remarkMath]}
       rehypePlugins={[rehypeKatex]}
       components={{
@@ -82,7 +84,7 @@ function Annotations({ annotation }) {
         return (
           <li
             key={node?.id}
-            className="inline-block bg-white px-2 py-1.5 mb-1 text-brand__font__size__xs shadow w-full font-brand__font__500"
+            className="inline-block px-4 py-1.5 mb-1 text-brand__font__size__sm w-full font-brand__font__500"
           >
             <a
               className="w-fit inline-block"
@@ -115,11 +117,11 @@ export default function ChatMessages({ messages }) {
         return (
           <div
             key={i}
-            className={`w-full flex mb-2 pt-3 ${
+            className={`w-full flex mb-2 p-3 ${
               isUser ? "justify-end" : "justify-start"
             }`}
           >
-            <div className="max-w-[700px] text-brand__font__size__sm rounded-xl text-primary">
+            <div className="max-w-[700px] rounded-xl text-primary">
               <div className="group flex flex-col flex-1 justify-between gap-2">
                 <Markdown content={m.content} />
                 {annotation && <Annotations annotation={annotation} />}
@@ -127,14 +129,14 @@ export default function ChatMessages({ messages }) {
                   <div className="px-2 flex items-center gap-x-4 text-brand__font__size__xs mt-1 font-brand__font__600 text-primary">
                     <button
                       onClick={() => copyToClipboard(m.content)}
-                      className="flex items-center justify-between gap-x-1 hover:text-text__link duration-200"
+                      className="flex items-center justify-between gap-x-1 text-white duration-200"
                     >
                       <FaRegCopy size={10} />
                       <small>Copy</small>
                     </button>
                     <button
                       onClick={() => addNote(m.content)}
-                      className="flex items-center justify-between gap-x-1 hover:text-text__link duration-200"
+                      className="flex items-center justify-between gap-x-1 text-white duration-200"
                     >
                       <FaFileAlt size={10} />
                       <small>Note</small>

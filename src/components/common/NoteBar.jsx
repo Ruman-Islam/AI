@@ -28,7 +28,7 @@ import {
 import { Textarea } from "../ui/textarea";
 import Spinner from "./Spinner";
 
-export default function NoteBar() {
+export default function NoteBar({ isOpenNote, handleOpenNote }) {
   const { toast } = useToast();
   const pathname = usePathname();
   const [authUser] = useAuthState(auth);
@@ -127,13 +127,13 @@ export default function NoteBar() {
         <SheetTrigger>
           <FaCirclePlus
             size={40}
-            className="absolute right-5 top-5 text-primary cursor-pointer"
+            className="absolute right-5 top-5 text-white cursor-pointer"
           />
         </SheetTrigger>
       )}
 
       <SheetContent
-        className="bg-white flex flex-col justify-between h-full"
+        className="bg-primary text-white flex flex-col justify-between h-full border-none"
         side="right"
       >
         <SheetHeader>
@@ -145,7 +145,7 @@ export default function NoteBar() {
           {state.notes.map((note) => (
             <div
               key={note?.id}
-              className="border shadow mb-2 p-4 rounded-xl flex flex-col items-start justify-center relative mx-1.5"
+              className="border shadow mb-2 p-4 rounded-xl flex flex-col items-start justify-center relative mx-1.5 bg-secondary"
             >
               <div>
                 <span className="text-brand__font__size__xs font-brand__font__500">
@@ -170,7 +170,7 @@ export default function NoteBar() {
                   required: true,
                 })}
                 placeholder="Enter your personal note here"
-                className="col-span-3"
+                className="col-span-3 bg-secondary border-none"
               />
               {errors?.note?.type === "required" && (
                 <small className="text-text__error">
@@ -179,7 +179,7 @@ export default function NoteBar() {
               )}
               <Button
                 type="submit"
-                className="text-white max-w-[250px] w-full mx-auto"
+                className="text-white max-w-[250px] w-full mx-auto bg-secondary"
               >
                 {loading ? (
                   <Spinner styles="w-5 h-5 text-white" />

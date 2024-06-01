@@ -188,7 +188,7 @@ export default function Archive() {
   return (
     <>
       <DashboardLayout>
-        <div className="p-3 w-full h-full flex flex-col gap-5 container">
+        <div className="p-3 w-full h-full flex flex-col gap-5 container text-white">
           <div className="flex flex-col md:flex-row w-full gap-x-5 gap-y-2 md:justify-between md:items-center">
             <div className="mt-2.5">
               <h1 className="text-brand__font__size__lg leading-[20px]">
@@ -200,7 +200,7 @@ export default function Archive() {
             </div>
             <div className="flex-1 w-full max-w-[700px]">
               <Input
-                className="focus-outline-none border-none focus-visible:ring-0 py-4"
+                className="py-4 bg-primary border border-primary outline-none ring-0 focus:ring-0"
                 placeholder="Type..."
                 onChange={(e) => handleSearch(e.target.value)}
               />
@@ -216,7 +216,7 @@ export default function Archive() {
               ).map((item, i) =>
                 item ? (
                   <div key={i}>
-                    <div className="bg-white flex flex-col sm:flex-row justify-between items-center rounded-xl gap-5 p-4 my-2 text-primary">
+                    <div className="bg-primary flex flex-col sm:flex-row justify-between items-center rounded-xl gap-5 px-4 py-6 my-2">
                       <div className="flex flex-col">
                         {item?.chatTitle?.length > 50 ? (
                           <Tooltip>
@@ -247,28 +247,20 @@ export default function Archive() {
                       <div className="flex justify-between gap-x-3 text-brand__font__size__md">
                         <Button
                           onClick={() => handleDelete(item?.id)}
-                          variant="outline"
-                          className="hover:text-text__error hover:border-text__error duration-200"
+                          className="hover:border-text__error duration-200 border border-secondary"
                         >
                           <FaRegTrashAlt />
                         </Button>
                         <Button
                           onClick={() => handleUpdate(item)}
-                          variant="outline"
-                          className="hover:text-text__link hover:border-text__link duration-200"
+                          className="hover:border-text__link duration-200 border border-secondary"
                         >
                           <FaEdit />
                         </Button>
-                        <Button
-                          variant="outline"
-                          className="hover:text-primary hover:border-primary duration-200"
-                        >
+                        <Button className="duration-200 border border-secondary">
                           <FaDownload />
                         </Button>
-                        <Button
-                          variant="outline"
-                          className="hover:text-primary hover:border-primary duration-200"
-                        >
+                        <Button className="duration-200 border border-secondary">
                           <FaFilePdf />
                         </Button>
                       </div>

@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }) {
   }, [authLoading, router, user]);
 
   return (
-    <section className="h-screen w-full bg-[#EEEEEE]">
+    <section className="h-screen w-full bg-secondary">
       <div className="h-full w-full flex justify-between">
         <TooltipProvider>
           <Sidebar />

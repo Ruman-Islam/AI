@@ -25,11 +25,11 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
+  background-color: #212121;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #d6d6d6;
+  background-color: #171717;
 }
 
 ::-webkit-scrollbar-thumb:hover {

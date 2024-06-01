@@ -58,31 +58,33 @@ export default function ChatSidebarTab() {
   return (
     <TabsContent value="Chat" className="h-full">
       <div className="h-full flex flex-col gap-y-3">
-        <div className="flex justify-between gap-2 text-primary">
+        <div className="flex justify-between gap-2 text-white">
           <Button
             onClick={handleOpenNewChat}
-            variant="outline"
-            className={`w-full ${pathname === "/chat" && "border-primary"}`}
+            className={`w-full bg-transparent border border-secondary ${
+              pathname === "/chat" && "bg-secondary"
+            }`}
           >
             New Chat
           </Button>
           <Button
             onClick={() => router.push("/archive")}
-            variant="outline"
-            className={`w-full ${pathname === "/archive" && "border-primary"}`}
+            className={`w-full bg-transparent border border-secondary ${
+              pathname === "/archive" && "bg-secondary"
+            }`}
           >
             Archive
           </Button>
         </div>
-        <ul className="max-h-[510px] h-full inline-block overflow-y-auto">
+        <ul className="max-h-[510px] h-full inline-block overflow-y-auto mt-2">
           {state?.chatIds?.map((item) => (
             <li
               key={item?.id}
-              className="text-primary inline-block max-w-[250px] w-full text-brand__font__size__sm font-brand__font__500 hover:text-text__link mb-1.5 pl-1 duration-200"
+              className="inline-block max-w-[250px] w-full text-brand__font__size__sm font-brand__font__500 duration-200"
             >
               <Link
                 href={`/chat?chatId=${item?.id}`}
-                className="inline-block w-full"
+                className="inline-block w-full hover:bg-secondary duration-200 px-3 py-2 rounded-xl"
               >
                 {item?.chatTitle?.length > 24 ? (
                   <Tooltip>

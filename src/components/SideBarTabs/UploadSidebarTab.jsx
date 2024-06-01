@@ -53,7 +53,12 @@ export default function UploadSidebarTab() {
       <div className="h-full flex flex-col justify-end">
         <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label htmlFor="upload">File upload</Label>
-          <Input id="upload" type="file" onChange={handleFileUpload} />
+          <Input
+            className="text-white"
+            id="upload"
+            type="file"
+            onChange={handleFileUpload}
+          />
         </div>
       </div>
     </TabsContent>
